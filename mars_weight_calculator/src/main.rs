@@ -1,5 +1,5 @@
 /// code along with the Udemy course Learn Rust by Building Real Applications
-/// https://www.udemy.com/course/rust-fundamentals/
+/// by Lyubomir Gavadinov, https://www.udemy.com/course/rust-fundamentals/
 /// Section 3: Building a command line application
 /// https://www.udemy.com/course/rust-fundamentals/learn/lecture/20772634#overview
 /// 
