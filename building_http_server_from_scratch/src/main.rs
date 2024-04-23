@@ -20,7 +20,7 @@ impl Server {
     }
 
     fn run(&self) {
-        println!("Server running at {}", self.addr);
+        println!("Listening on {}", self.addr);
     }
 }
 
