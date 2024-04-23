@@ -9,52 +9,59 @@
 /// (2) HTTP Parser
 /// (3) Request Handler
 
-struct Server {
-    addr: String,
+mod server {
+    pub struct Server {
+        addr: String,
+    }
+
+    impl Server {
+        pub fn new(addr: String) -> Self {
+            Server {
+                addr
+            }
+        }
+
+        pub fn run(&self) {
+            println!("Listening on {}", self.addr);
+        }
+    }
 }
 
-impl Server {
-    fn new(addr: String) -> Self {
-        Server {
-            addr
+mod http {
+    pub mod request {
+        use super::method::Method;
+        // request we want to code
+        /*
+        GET /user?id=10 HTTP/1.1\r\n
+        HEADERS \r\n
+        BODY
+        */
+        pub struct Request {
+            path: String,
+            query_string: Option<String>,
+            method: Method,
         }
     }
 
-    fn run(&self) {
-        println!("Listening on {}", self.addr);
+    pub mod method {
+        pub enum Method {
+            GET,
+            DELETE,
+            POST,
+            PUT,
+            HEAD,
+            CONNECT,
+            OPTIONS,
+            TRACE,
+            PATCH,
+        }
     }
 }
 
-// request we want to code
-/*
-GET /user?id=10 HTTP/1.1\r\n
-HEADERS \r\n
-BODY
-*/
-struct Request {
-    path: String,
-    query_string: Option<String>,
-    method: Method,
-}
+use server::Server;
+use http::request::Request;
 
-enum Method {
-    GET,
-    DELETE,
-    POST,
-    PUT,
-    HEAD,
-    CONNECT,
-    OPTIONS,
-    TRACE,
-    PATCH,
-}
-
-fn main() {
-    let get = Method::GET;
-    let delete = Method::DELETE;
-    let post = Method::POST;
-    let put = Method::PUT;
-    
+fn main() {    
     let server = Server::new(String::from("127.0.0.1:8080"));
     server.run();
 }
