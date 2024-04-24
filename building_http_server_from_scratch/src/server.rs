@@ -4,7 +4,7 @@
 
 // TcpListener -> a TCP socket server, listening for connections
 // Struct std::net::TcpListener
-use std::net::TcpListener;
+use std::{io::Read, net::{TcpListener, TcpStream}};
 
 // TcpStream -> a TCP stream between a local and a remote socket
 // Struct std::net::TcpStream
@@ -20,7 +20,9 @@ impl Server {
         }
     }
 
-    pub fn run(&self) {        
+    pub fn run(&self) {
+        println!("Listening on {:?}", self.addr);
+
         // bind wraps TcpListener into a result
         // bind returns a std::io::Result<()>
         // turning recoverable in unrecoverable error:
@@ -33,8 +35,17 @@ impl Server {
             // checking (listening) for new connections for every iteration of the loop
             // listener.accept() blocks the code until a new connection arrives
             // returns io::Result<(TcpStream, SocketAddr)>
-            listener.accept();
-            println!("Listening on {}", self.addr);
+            match listener.accept() {
+                Ok((mut stream, _)) => {
+                    let mut buffer = [0; 1024];
+                    stream.read(&mut buffer);
+                    
+                },
+                Err(e) => println!("Failed to establish a connection: {:?}", e),
+            }
+
+            // listener.accept();
+            
         }
 
         
