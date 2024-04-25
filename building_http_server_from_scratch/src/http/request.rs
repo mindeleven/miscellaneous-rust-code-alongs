@@ -1,4 +1,6 @@
 use super::method::Method;
+use std::convert::TryFrom;
+
 // request we want to code
 /*
 GET /user?id=10 HTTP/1.1\r\n
@@ -11,3 +13,18 @@ pub struct Request {
     method: Method,
 }
 
+impl Request {
+    fn from_byte_array(buf: &[u8]) -> Result<Self, String> {
+        unimplemented!()
+    }
+}
+
+// TryFrom is generic over type T
+// which is the type we're converting from (the byte array)
+impl TryFrom<&[u8]> for Request {
+    type Error = String;
+
+    fn try_from(buf: &[u8]) -> Result<Self, Self::Error> {
+       unimplemented!()
+    }
+}
