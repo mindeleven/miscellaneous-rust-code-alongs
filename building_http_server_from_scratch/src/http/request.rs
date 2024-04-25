@@ -13,12 +13,6 @@ pub struct Request {
     method: Method,
 }
 
-impl Request {
-    fn from_byte_array(buf: &[u8]) -> Result<Self, String> {
-        unimplemented!()
-    }
-}
-
 // TryFrom is generic over type T
 // which is the type we're converting from (the byte array)
 impl TryFrom<&[u8]> for Request {
