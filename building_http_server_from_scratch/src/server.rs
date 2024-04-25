@@ -36,16 +36,20 @@ impl Server {
             // listener.accept() blocks the code until a new connection arrives
             // returns io::Result<(TcpStream, SocketAddr)>
             match listener.accept() {
+                // sending data for testing with
+                // echo "TEST" | netcat 127.0.0.1 8080
                 Ok((mut stream, _)) => {
                     let mut buffer = [0; 1024];
-                    stream.read(&mut buffer);
+                    match stream.read(&mut buffer) {
+                        Ok(_) => {
+                            println!("Received a request: {}", String::from_utf8_lossy(&buffer));
+                        },
+                        Err(e) => println!("Failed to read from connection: {:?}", e),
+                    }
                     
                 },
                 Err(e) => println!("Failed to establish a connection: {:?}", e),
-            }
-
-            // listener.accept();
-            
+            }            
         }
 
         
