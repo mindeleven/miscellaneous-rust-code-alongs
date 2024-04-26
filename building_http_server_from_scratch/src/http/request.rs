@@ -7,6 +7,10 @@ use std::{
         Display,
         Formatter,
         Result as FmtResult
+    },
+    str::{
+        self,
+        Utf8Error
     }
 };
 
@@ -28,7 +32,31 @@ impl TryFrom<&[u8]> for Request {
     type Error = ParseError;
     // GET /search?name=abcd&sort=1 HTTP/1.1\r\n
     fn try_from(buf: &[u8]) -> Result<Self, Self::Error> {
-       unimplemented!()
+        /*
+        // converting the byteslice into a stringslice
+        match str::from_utf8(buf) {
+            Ok(request) => { },
+            Err(_) => {
+                return Err(ParseError::InvalidEncoding)
+            },
+        }
+        // alternative syntax:
+        // or() will return error or the string slice from the function call
+        match str::from_utf8(buf).or(Err(ParseError::InvalidEncoding)) {
+            Ok(request) => { },
+            Err(e) => return Err(e)
+        }
+        // alternative syntax with ? operator:
+        // ? will try to convert the error type it receives if it does not 
+        // match the error type the function returns
+        let request = str::from_utf8(buf).or(Err(ParseError::InvalidEncoding))?;
+        */
+        // even shorter alternative syntax
+        // `?` can convert error to `ParseError` if the `From` trait is implemented
+        let request = str::from_utf8(buf)?;
+
+        unimplemented!()
+        
     }
 }
 
@@ -38,6 +66,14 @@ pub enum ParseError {
     InvalidEncoding, // not valid UTF-8
     InvalidProtocol, // not HTTP 1.1
     InvalidMethod, // method not in Method enum
+}
+
+// implementing From trait to parse Utf8Error
+// every time we receive an Utf8Error we return an InvalidEncoding error
+impl From<Utf8Error> for ParseError {
+    fn from(_: Utf8Error) -> Self {
+        Self::InvalidEncoding
+    }
 }
 
 impl Display for ParseError {
