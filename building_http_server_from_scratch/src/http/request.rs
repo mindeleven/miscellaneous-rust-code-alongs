@@ -99,7 +99,9 @@ impl TryFrom<&[u8]> for Request {
         // an even more concise way: ´if let´ statement
         // useful when you want to match on something and only are interested in a single variant
         if let Some(i) = path.find('?') {
-            query_string = Some(&path[i + 1..]);
+            // converting the string slice inside the some 
+            // because the Request struct expects a string
+            query_string = Some(path[i + 1..].to_string());
             path = &path[..i];
         }
 
@@ -108,8 +110,13 @@ impl TryFrom<&[u8]> for Request {
         if protocol != "HTTP/1.1" {
             return Err(ParseError::InvalidProtocol);
         }
-
-        unimplemented!()
+        
+        // creating a new request with the extracted variables
+        Ok(Self {
+            path: path.to_string(), // path expects a string
+            query_string,
+            method,
+        })
         
     }
 }
