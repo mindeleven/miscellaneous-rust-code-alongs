@@ -64,12 +64,45 @@ impl TryFrom<&[u8]> for Request {
         // otherwise we get an Ok() and ? returns the tuple wrapped in it
         // call to get_next_word returns (1) method, (2) path, (3) protocol
         let (method, request) = get_next_word(&request).ok_or(ParseError::InvalidRequest)?;
-        let (path, request) = get_next_word(&request).ok_or(ParseError::InvalidRequest)?;
+        let (mut path, request) = get_next_word(&request).ok_or(ParseError::InvalidRequest)?;
         // no more parsing after protocol, we're only interested in first line
         let (protocol, _) = get_next_word(&request).ok_or(ParseError::InvalidRequest)?;
 
         // matching the Method enum with the incoming method str
+        // and parsing the method string into an enum
         let method: Method = method.parse()?;
+
+        // separating the query string from the path
+        let mut query_string = None;
+        // looking for the postion of the ?
+        /* 
+        match path.find('?') {
+            Some(i) => {
+                // splitting the path into path and query string
+                query_string = Some(&path[i + 1..]);
+                path = &path[..i];
+            }
+            None => {}
+        }
+        */
+ 
+        // alternative way to avoid empty None arm
+        /* 
+        let q = path.find('?'); // returns Option
+        if q.is_some() {
+            let i = q.unwrap(); // unwrap will panic if Option was None
+            query_string = Some(&path[i + 1..]);
+            path = &path[..i];
+        }
+        */
+
+        // an even more concise way: ´if let´ statement
+        // useful when you want to match on something and only are interested in a single variant
+        if let Some(i) = path.find('?') {
+            query_string = Some(&path[i + 1..]);
+            path = &path[..i];
+        }
+
         
         // we're only interested in HTTP/1.1 requests
         if protocol != "HTTP/1.1" {
