@@ -1,4 +1,7 @@
-use super::method::Method;
+use super::method::{
+    Method, 
+    MethodError
+};
 use std::{
     convert::TryFrom,
     error::Error,
@@ -54,10 +57,60 @@ impl TryFrom<&[u8]> for Request {
         // even shorter alternative syntax
         // `?` can convert error to `ParseError` if the `From` trait is implemented
         let request = str::from_utf8(buf)?;
+        
+        // ok_or() transforms the Option<T> into a Result<T, E>, 
+        // mapping [Some(v)] to [Ok(v)] and None to [Err(err)]
+        // if we get an error we want it to wrap it in a ParseError::InvalidRequest
+        // otherwise we get an Ok() and ? returns the tuple wrapped in it
+        // call to get_next_word returns (1) method, (2) path, (3) protocol
+        let (method, request) = get_next_word(&request).ok_or(ParseError::InvalidRequest)?;
+        let (path, request) = get_next_word(&request).ok_or(ParseError::InvalidRequest)?;
+        // no more parsing after protocol, we're only interested in first line
+        let (protocol, _) = get_next_word(&request).ok_or(ParseError::InvalidRequest)?;
+
+        // matching the Method enum with the incoming method str
+        let method: Method = method.parse()?;
+        
+        // we're only interested in HTTP/1.1 requests
+        if protocol != "HTTP/1.1" {
+            return Err(ParseError::InvalidProtocol);
+        }
 
         unimplemented!()
         
     }
+}
+
+// functionality to split the incomming request into single parts 
+// incoming request looks like:
+// GET /search?name=abcd&sort=1 HTTP/1.1\r\n
+fn get_next_word(request: &str) -> Option<(&str, &str)> {
+    // function returns tuple with two string slices
+    // 1/ the extracted word we want
+    // 2/ the remaining request string
+    // wrapped in an Option in case of None
+
+    // looping through the string till we find a space
+    // chars() returns iterator with Option (Some() or None)
+    /* 
+    let mut iter = request.chars();
+    loop {
+        let item = iter.next();
+        match item {
+            Some(c) => (),
+            None => break,
+        }
+    }
+    */
+    for (i, c) in request.chars().enumerate() {
+        if c == ' ' || c == '\r' {
+            // [..i] returns all characters till the first space
+            // [i+1..] returns characters after first space
+            return Some((&request[..i], &request[i+1..]))
+        }
+    }
+
+    None
 }
 
 // enum to represent different kinds of parsing errors
@@ -66,6 +119,13 @@ pub enum ParseError {
     InvalidEncoding, // not valid UTF-8
     InvalidProtocol, // not HTTP 1.1
     InvalidMethod, // method not in Method enum
+}
+
+// implementing From trait to parse Method error
+impl From<MethodError> for ParseError {
+    fn from(_: MethodError) -> Self {
+        Self::InvalidMethod
+    }
 }
 
 // implementing From trait to parse Utf8Error
