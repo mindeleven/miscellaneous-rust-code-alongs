@@ -23,18 +23,20 @@ GET /user?id=10 HTTP/1.1\r\n
 HEADERS \r\n
 BODY
 */
-pub struct Request {
-    path: String,
-    query_string: Option<String>,
+
+// lifetime 'a of the request is lifetime of the buffer
+pub struct Request<'a> {
+    path: &'a str,
+    query_string: Option<&'a str>,
     method: Method,
 }
 
 // TryFrom is generic over type T
 // which is the type we're converting from (the byte array)
-impl TryFrom<&[u8]> for Request {
+impl<'a> TryFrom<&'a [u8]> for Request<'a> {
     type Error = ParseError;
     // GET /search?name=abcd&sort=1 HTTP/1.1\r\n
-    fn try_from(buf: &[u8]) -> Result<Self, Self::Error> {
+    fn try_from(buf: &'a [u8]) -> Result<Request<'a>, Self::Error> {
         /*
         // converting the byteslice into a stringslice
         match str::from_utf8(buf) {
@@ -101,7 +103,7 @@ impl TryFrom<&[u8]> for Request {
         if let Some(i) = path.find('?') {
             // converting the string slice inside the some 
             // because the Request struct expects a string
-            query_string = Some(path[i + 1..].to_string());
+            query_string = Some(&path[i + 1..]);
             path = &path[..i];
         }
 
@@ -113,7 +115,7 @@ impl TryFrom<&[u8]> for Request {
         
         // creating a new request with the extracted variables
         Ok(Self {
-            path: path.to_string(), // path expects a string
+            path, // path expects a string
             query_string,
             method,
         })
