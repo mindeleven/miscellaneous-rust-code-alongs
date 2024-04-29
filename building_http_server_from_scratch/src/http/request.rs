@@ -1,6 +1,13 @@
-use super::method::{
-    Method, 
-    MethodError
+use super::{
+    method::{
+        Method, 
+        MethodError
+    },
+    { 
+        QueryString, 
+        QueryStringValue
+    }
+
 };
 use std::{
     convert::TryFrom,
