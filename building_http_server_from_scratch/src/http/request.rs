@@ -3,11 +3,7 @@ use super::{
         Method, 
         MethodError
     },
-    { 
-        QueryString, 
-        QueryStringValue
-    }
-
+    QueryString,
 };
 use std::{
     convert::TryFrom,
@@ -32,9 +28,10 @@ BODY
 */
 
 // lifetime 'a of the request is lifetime of the buffer
+#[derive(Debug)]
 pub struct Request<'a> {
     path: &'a str,
-    query_string: Option<&'a str>,
+    query_string: Option<QueryString<'a>>,
     method: Method,
 }
 
@@ -110,7 +107,7 @@ impl<'a> TryFrom<&'a [u8]> for Request<'a> {
         if let Some(i) = path.find('?') {
             // converting the string slice inside the some 
             // because the Request struct expects a string
-            query_string = Some(&path[i + 1..]);
+            query_string = Some(QueryString::from(&path[i + 1..]));
             path = &path[..i];
         }
 
