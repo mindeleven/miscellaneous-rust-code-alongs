@@ -22,8 +22,9 @@ HTTP/1.1 200 OK
 Hello world! This is the content of the response.
 */
 
-pub enum StatusCode {}
+use super::StatusCode;
 
+#[derive(Debug)]
 pub struct Response {
     status_code: StatusCode,
     body: Option<String>,
