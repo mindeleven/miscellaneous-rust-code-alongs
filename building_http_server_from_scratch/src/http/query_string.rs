@@ -1,6 +1,7 @@
 /// coding the query_string struct and its functionality
 use std::collections::HashMap;
 
+#[derive(Debug)]
 pub struct QueryString<'a> {
     data: HashMap<&'a str, Value<'a>>,
 }
@@ -8,6 +9,7 @@ pub struct QueryString<'a> {
 // for some values we need a string for others an array
 // we're using a vector to store multiple values because 
 // we need a heap allocated array that can have a varying number of values
+#[derive(Debug)]
 pub enum Value<'a> {
     Single(&'a str),
     Multiple(Vec<&'a str>),
@@ -58,9 +60,8 @@ impl<'a> From<&'a str> for QueryString<'a> {
 
         }
 
-        QueryString { data };
+        QueryString { data }
 
-        unimplemented!()
     }
 
 }
