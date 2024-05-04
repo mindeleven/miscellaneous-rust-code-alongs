@@ -58,7 +58,9 @@ impl Server {
                             // returns result so we've to match
                             match Request::try_from(&buffer[..]) {
                                 // Ok() wraps request
-                                Ok(request) => {},
+                                Ok(request) => {
+                                    dbg!(request);
+                                },
                                 Err(e) => {
                                     println!("Failed to parse a request: {}", e);
                                 },
