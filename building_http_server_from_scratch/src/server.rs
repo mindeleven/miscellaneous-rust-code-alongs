@@ -67,10 +67,17 @@ impl Server {
                                 // Ok() wraps request
                                 Ok(request) => {
                                     dbg!(request);
-                                    // creating a response
+                                    // creating a 404 response
+                                    /* 
                                     let response = Response::new(
                                         StatusCode::NotFound,
                                         None
+                                    );
+                                    */
+                                    // creating a 200 response
+                                    let response: Response = Response::new(
+                                        StatusCode::OK,
+                                        Some("<h1>It's alive!!!!!!</h1>".to_string())
                                     );
                                     // using the write macro to send data to the request
                                     // we can pass the response directly 
