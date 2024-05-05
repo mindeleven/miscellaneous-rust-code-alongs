@@ -5,13 +5,20 @@
 // TcpListener -> a TCP socket server, listening for connections
 // Struct std::net::TcpListener
 use std::{
-    io::Read, 
+    io::{
+        Read,
+        Write
+    }, 
     net::{
         TcpListener, 
         TcpStream
     }
 };
-use crate::http::Request;
+use crate::http::{
+    Request,
+    Response,
+    StatusCode
+};
 use std::convert::TryFrom;
 
 // TcpStream -> a TCP stream between a local and a remote socket
@@ -60,6 +67,15 @@ impl Server {
                                 // Ok() wraps request
                                 Ok(request) => {
                                     dbg!(request);
+                                    // creating a response
+                                    let response = Response::new(
+                                        StatusCode::NotFound,
+                                        None
+                                    );
+                                    // using the write macro to send data to the request
+                                    // we can pass the response directly 
+                                    // because it implements Display
+                                    write!(stream, "{}", response);
                                 },
                                 Err(e) => {
                                     println!("Failed to parse a request: {}", e);
