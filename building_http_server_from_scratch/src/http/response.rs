@@ -22,6 +22,12 @@ HTTP/1.1 200 OK
 Hello world! This is the content of the response.
 */
 
+use std::fmt::{
+    Display,
+    Formatter,
+    Result as FmtResult
+};
+
 use super::StatusCode;
 
 #[derive(Debug)]
@@ -38,4 +44,22 @@ impl Response {
         }
     }
 
+}
+
+/// implementing Display for the response so that we can sent back a message with write!
+impl Display for Response {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        let body = match &self.body {
+            Some(b) => b,
+            None => ""
+        };
+
+        write!(
+            f, 
+            "HTTP/1.1 {} {}\r\n\r\n{}", 
+            self.status_code, 
+            self.status_code.reason_phrase(),
+            body
+        )
+    }
 }
