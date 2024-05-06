@@ -22,10 +22,17 @@ HTTP/1.1 200 OK
 Hello world! This is the content of the response.
 */
 
-use std::fmt::{
-    Display,
-    Formatter,
-    Result as FmtResult
+use std::{
+    fmt::{
+        Display,
+        Formatter,
+        Result as FmtResult
+    }, 
+    io::{
+        Result as IoResult,
+        Write
+    },
+    net::TcpStream
 };
 
 use super::StatusCode;
@@ -44,9 +51,26 @@ impl Response {
         }
     }
 
+    // moving write logic to the Response intself
+    pub fn send(&self, stream: &mut TcpStream) -> IoResult<()> {
+        let body = match &self.body {
+            Some(b) => b,
+            None => ""
+        };
+
+        write!(
+            stream, 
+            "HTTP/1.1 {} {}\r\n\r\n{}", 
+            self.status_code, 
+            self.status_code.reason_phrase(),
+            body
+        )
+    }
+
 }
 
-/// implementing Display for the response so that we can sent back a message with write!
+// implementing Display for the response so that we can sent back a message with write!
+/* no longer needed because now we're writing to the stream directly with send()
 impl Display for Response {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         let body = match &self.body {
@@ -63,3 +87,4 @@ impl Display for Response {
         )
     }
 }
+*/

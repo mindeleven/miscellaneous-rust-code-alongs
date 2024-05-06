@@ -82,10 +82,17 @@ impl Server {
                                     // using the write macro to send data to the request
                                     // we can pass the response directly 
                                     // because it implements Display
-                                    write!(stream, "{}", response);
+                                    // write!(stream, "{}", response);
+                                    
+                                    // we're writing to the stream directly now with send()
+                                    response.send(&mut stream);
                                 },
                                 Err(e) => {
                                     println!("Failed to parse a request: {}", e);
+                                    Response::new(
+                                        StatusCode::BadRequest,
+                                        None
+                                    ).send(&mut stream);
                                 },
                             }
                         },
