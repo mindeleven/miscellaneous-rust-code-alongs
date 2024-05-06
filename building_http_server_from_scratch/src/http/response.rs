@@ -52,7 +52,15 @@ impl Response {
     }
 
     // moving write logic to the Response intself
-    pub fn send(&self, stream: &mut TcpStream) -> IoResult<()> {
+    // pub fn send(&self, stream: &mut TcpStream) -> IoResult<()> {
+    
+    // making the response more generic by replacing TcpStream with Write
+    // dyn = dynamic dispatch -> the concrete function implementation will be called at runtime
+    // pub fn send(&self, stream: &mut dyn Write) -> IoResult<()> {
+    
+    // alternative approach: static dispatch with is resolved at compile time
+    // impl -> function accepts any parameter that implements Write trait
+    pub fn send(&self, stream: &mut impl Write) -> IoResult<()> {
         let body = match &self.body {
             Some(b) => b,
             None => ""
