@@ -26,7 +26,13 @@ use crate::http::{
 pub trait Handler {
     fn handle_request(&mut self, request: &Request) -> Response;
 
-    fn handle_bad_request(&mut self, e: &ParseError) -> Response;
+    fn handle_bad_request(&mut self, e: &ParseError) -> Response {
+        println!("Failed to parse a request: {}", e);
+        Response::new(
+            StatusCode::BadRequest,
+            None
+        )
+    }
 }
 
 pub struct Server {
@@ -73,6 +79,7 @@ impl Server {
                             let response = match Request::try_from(&buffer[..]) {
                                 // Ok() wraps request
                                 Ok(request) => {
+                                    /* 
                                     dbg!(request);
                                     // creating a 404 response
                                     /* 
@@ -93,13 +100,20 @@ impl Server {
                                     
                                     // we're writing to the stream directly now with send()
                                     response
+                                    */
+                                    // commenting it all out and leaving the response to the handler
+                                    handler.handle_request(&request)
                                 },
                                 Err(e) => {
+                                    /* 
                                     println!("Failed to parse a request: {}", e);
                                     Response::new(
                                         StatusCode::BadRequest,
                                         None
                                     )
+                                    */
+                                    // commenting it all out and leaving the response to the handler
+                                    handler.handle_request(&request)
                                 },
                             };
 
