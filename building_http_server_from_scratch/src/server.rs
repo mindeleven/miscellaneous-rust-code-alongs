@@ -48,7 +48,7 @@ impl Server {
     
     // aside from a reference to self we're passing a handler to the run function 
     // that can be any type the implements the Handler trait
-    pub fn run(&self, handler: impl Handler) {
+    pub fn run(&self, mut handler: impl Handler) {
         println!("Listening on {:?}", self.addr);
 
         // bind wraps TcpListener into a result
@@ -113,7 +113,7 @@ impl Server {
                                     )
                                     */
                                     // commenting it all out and leaving the response to the handler
-                                    handler.handle_request(&request)
+                                    handler.handle_bad_request(&e)
                                 },
                             };
 
