@@ -5,6 +5,7 @@
 // TcpListener -> a TCP socket server, listening for connections
 // Struct std::net::TcpListener
 use std::{
+    convert::TryFrom,
     io::{
         Read,
         Write
@@ -15,14 +16,18 @@ use std::{
     }
 };
 use crate::http::{
-    Request,
-    Response,
-    StatusCode
+    ParseError, Request, Response, StatusCode
 };
-use std::convert::TryFrom;
 
 // TcpStream -> a TCP stream between a local and a remote socket
 // Struct std::net::TcpStream
+
+// creating a handler for the response
+pub trait Handler {
+    fn handle_request(&mut self, request: &Request) -> Response;
+
+    fn handle_bad_request(&mut self, e: &ParseError) -> Response;
+}
 
 pub struct Server {
     addr: String,
@@ -34,8 +39,10 @@ impl Server {
             addr
         }
     }
-
-    pub fn run(&self) {
+    
+    // aside from a reference to self we're passing a handler to the run function 
+    // that can be any type the implements the Handler trait
+    pub fn run(&self, handler: impl Handler) {
         println!("Listening on {:?}", self.addr);
 
         // bind wraps TcpListener into a result
