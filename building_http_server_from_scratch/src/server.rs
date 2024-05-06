@@ -63,7 +63,7 @@ impl Server {
                             // shorter way: 
                             // [..] creates a byte slice the omits bounds and contains entire array
                             // returns result so we've to match
-                            match Request::try_from(&buffer[..]) {
+                            let response = match Request::try_from(&buffer[..]) {
                                 // Ok() wraps request
                                 Ok(request) => {
                                     dbg!(request);
@@ -85,15 +85,19 @@ impl Server {
                                     // write!(stream, "{}", response);
                                     
                                     // we're writing to the stream directly now with send()
-                                    response.send(&mut stream);
+                                    response
                                 },
                                 Err(e) => {
                                     println!("Failed to parse a request: {}", e);
                                     Response::new(
                                         StatusCode::BadRequest,
                                         None
-                                    ).send(&mut stream);
+                                    )
                                 },
+                            };
+
+                            if let Err(e) = response.send(&mut stream) {
+                                println!("Failed to send response: {}", e);
                             }
                         },
                         Err(e) => println!("Failed to read from connection: {:?}", e),
