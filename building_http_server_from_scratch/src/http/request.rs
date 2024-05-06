@@ -35,6 +35,22 @@ pub struct Request<'a> {
     method: Method,
 }
 
+// adding getters to the request
+impl<'a> Request<'a> {
+    pub fn path(&self) -> &str {
+        &self.path
+    }
+
+    pub fn method(&self) -> &Method {
+        &self.method
+    }
+
+    pub fn query_string(&self) -> Option<&QueryString> {
+        // returning an Option with a reference to the data inside the Option
+        self.query_string.as_ref()
+    }
+}
+
 // TryFrom is generic over type T
 // which is the type we're converting from (the byte array)
 impl<'a> TryFrom<&'a [u8]> for Request<'a> {
