@@ -50,11 +50,9 @@ impl Handler for WebsiteHandler {
                         self.read_file("hello.html")
                     )
                 },
-                _ => {
-                    Response::new(
-                        StatusCode::NotFound,
-                        None
-                    )
+                path => match self.read_file(path) {
+                    Some(contents) => Response::new(StatusCode::OK, Some(contents)),
+                    None => Response::new(StatusCode::NotFound, None)
                 }
             },
             _ => {
