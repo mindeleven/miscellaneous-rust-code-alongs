@@ -37,13 +37,17 @@ impl Handler for WebsiteHandler {
                 "/" => {
                     Response::new(
                         StatusCode::OK,
-                        Some("<h1>It's alive!!!!!!</h1><h2>handle request via match request.method().</h2>".to_string())
+                        // Some("<h1>It's alive!!!!!!</h1><h2>handle request via match request.method().</h2>".to_string())
+                        // returning the index.html file instead of a string
+                        self.read_file("index.html")
                     )
                 },
                 "/hello" => {
                     Response::new(
                         StatusCode::OK,
-                        Some("<h1>A simple hello, nothing special</h2>".to_string())
+                        // Some("<h1>A simple hello, nothing special</h2>".to_string())
+                        // returning the hello.html file instead of a string
+                        self.read_file("hello.html")
                     )
                 },
                 _ => {
