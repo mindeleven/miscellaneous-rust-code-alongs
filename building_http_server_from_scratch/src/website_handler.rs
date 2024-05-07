@@ -2,7 +2,17 @@ use super::server::Handler;
 use super::http::{
     Method, Request, Response, StatusCode
 };
-pub struct WebsiteHandler;
+pub struct WebsiteHandler {
+    pub public_path: String
+}
+
+impl WebsiteHandler {
+    pub fn new(public_path: String) -> Self {
+        WebsiteHandler {
+            public_path
+        }
+    }
+}
 
 impl Handler for WebsiteHandler {
     fn handle_request(&mut self, request: &Request) -> Response {
