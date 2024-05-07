@@ -1,3 +1,5 @@
+use std::fs;
+
 use super::server::Handler;
 use super::http::{
     Method, Request, Response, StatusCode
@@ -11,6 +13,13 @@ impl WebsiteHandler {
         WebsiteHandler {
             public_path
         }
+    }
+
+    fn read_file(&self, file_path: &str) -> Option<String> {
+        let path = format!("{}/{}", self.public_path, file_path);
+        // read_to_string returns result
+        // ok() returns an option from the Result
+        fs::read_to_string(path).ok()
     }
 }
 
