@@ -8,6 +8,12 @@ pub struct WebsiteHandler {
     pub public_path: String
 }
 
+/// preparing for a traversal vulnerability attack with fs::canonicalize(path)
+/// "A path traversal vulnerability allows an attacker to access files on your web server 
+/// to which they should not have access. They do this by tricking either the web server 
+/// or the web application running on it into returning files that exist outside of the web 
+/// root folder."
+
 impl WebsiteHandler {
     pub fn new(public_path: String) -> Self {
         WebsiteHandler {
@@ -17,9 +23,23 @@ impl WebsiteHandler {
 
     fn read_file(&self, file_path: &str) -> Option<String> {
         let path = format!("{}/{}", self.public_path, file_path);
-        // read_to_string returns result
-        // ok() returns an option from the Result
-        fs::read_to_string(path).ok()
+
+        match fs::canonicalize(path) {
+            Ok(path) => {
+                // checking if path starts with public path
+                if path.starts_with(&self.public_path) {
+                    // read_to_string returns result
+                    // ok() returns an option from the Result
+                    fs::read_to_string(path).ok()
+                } else {
+                    println!("Directory traversal attack was attempted: {}", file_path);
+                    None
+                }
+            },
+            Err(_) => None
+        }
+
+       
     }
 }
 
