@@ -66,6 +66,7 @@ impl Server {
             match listener.accept() {
                 // sending data for testing with
                 // echo "TEST" | netcat 127.0.0.1 8080
+                // echo "GET /style.css HTTP/1.1\r\n" | netcat 127.0.0.1 8080
                 Ok((mut stream, _)) => {
                     let mut buffer = [0; 1024];
                     match stream.read(&mut buffer) {
