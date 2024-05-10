@@ -22,3 +22,18 @@ pub struct Blockheader {
     merkle: String,
     difficulty: u32,
 }
+
+#[derive(Debug, Serialize)]
+pub struct Block {
+    header: Blockheader,
+    count: u32,
+    transactions: Vec<Transaction>,
+}
+
+pub struct Chain {
+    chain: Vec<Block>,
+    curr_transaction: Vec<Transaction>,
+    difficulty: u32,
+    miner_addr: String,
+    reward: f32,
+}
