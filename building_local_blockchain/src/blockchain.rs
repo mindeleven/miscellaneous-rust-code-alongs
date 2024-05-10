@@ -37,3 +37,28 @@ pub struct Chain {
     miner_addr: String,
     reward: f32,
 }
+
+// implementing chain functionality
+impl Chain {
+    // creating a new miner
+    pub fn new(miner_addr: String, difficulty: u32) -> Chain {
+        let mut chain = Chain {
+            chain: Vec::new(),
+            curr_transaction: Vec::new(),
+            difficulty,
+            miner_addr,
+            reward: 100.0,
+        };
+        
+        chain.generate_new_block();
+
+        chain
+    }
+    
+    // returns bool that tells us wether a new block has been generated or not
+    fn generate_new_block(&mut self) -> bool {
+        
+        
+        true
+    }
+}
