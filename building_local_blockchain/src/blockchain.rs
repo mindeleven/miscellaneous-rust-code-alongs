@@ -4,6 +4,7 @@ use time;
 use serde;
 use serde_json;
 use sha2::{self, Sha256, Digest};
+use core::hash;
 use std::fmt::Write;
 
 // structuring data for the transactions
@@ -121,14 +122,43 @@ impl Chain {
         Chain::hash(&block.header)
     }
 
+    pub fn update_difficulty(&mut self, difficulty: u32) -> bool {
+        self.difficulty = difficulty;
+        true
+    }
+
+    pub fn update_reward(&mut self, reward: f32) -> bool {
+        self.reward = reward;
+        true
+    }
+
     fn hash(blockheader: &Blockheader) -> String {
         unimplemented!()
     }
 
     fn proof_of_work(blockheader: &mut Blockheader) {}
 
-    fn get_merkle(transactions: Vec<Transaction>) -> String {
-        unimplemented!()
+    fn get_merkle(curr_transaction: Vec<Transaction>) -> String {
+        let mut merkle = Vec::new();
+        for t in curr_transaction {
+            let hash =Chain::hash(t);
+            merkle.push(hash);
+        }
+
+        if merkle.len() % 2 == 1 {
+            let last = merkle.last().clone().unwrap();
+            merkle.push(last);
+        }
+
+        while merkle.len() > 1 {
+            let mut h1 = merkle.remove(0);
+            let mut h2 = merkle.remove(0);
+            h1.push_str(&mut h2);
+            let nh = Chain::hash(&h1);
+            merkle.push(nh);
+        }
+
+        merkle.pop().unwrap()
     }
 
 }
