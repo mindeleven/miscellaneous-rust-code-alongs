@@ -111,6 +111,17 @@ impl Chain {
     }
 
     pub fn last_hash(&self) -> String {
+        let block = match self.chain.last() {
+            Some(block) => block,
+            None => {
+                return String::from_utf8(vec![48; 64]).unwrap();
+            }
+        };
+        
+        Chain::hash(&block.header)
+    }
+
+    fn hash(blockheader: &Blockheader) -> String {
         unimplemented!()
     }
 
