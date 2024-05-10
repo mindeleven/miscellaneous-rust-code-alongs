@@ -93,6 +93,22 @@ impl Chain {
 
         true
     }
+    
+    // functionality to generate a new transaction
+    pub fn new_transaction(
+        &mut self,
+        sender: String,
+        receiver: String,
+        amount: f32,
+    ) -> bool {
+        self.curr_transaction.push(Transaction {
+            sender,
+            receiver,
+            amount,
+        });
+
+        true
+    }
 
     pub fn last_hash(&self) -> String {
         unimplemented!()
