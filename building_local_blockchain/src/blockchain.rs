@@ -56,9 +56,44 @@ impl Chain {
     }
     
     // returns bool that tells us wether a new block has been generated or not
-    fn generate_new_block(&mut self) -> bool {
+    pub fn generate_new_block(&mut self) -> bool {
+        let header = Blockheader {
+            timestamp: time::now().to_timespec().sec,
+            nonce: 0,
+            pre_hash: self.last_hash(),
+            merkle: String::new(),
+            difficulty: self.difficulty,
+        };
+
+        let reward_trans = Transaction {
+            sender: String::from("Root"),
+            receiver: self.miner_addr.clone(),
+            amount: self.reward,
+        };
+
+        let mut block = Block {
+            header: header,
+            count: 0,
+            transactions: vec![],
+        };
         
-        
+        block.transactions.push(reward_trans);
+        block.transactions.append(&mut self.curr_transaction);
+        block.count = block.transactions.len() as u32;
+        block.header.merkle = Chain::get_merkle(block.transactions.clone());
+        Chain::proof_of_work(&mut block.header);
+
         true
     }
+
+    pub fn last_hash(&self) -> String {
+        unimplemented!()
+    }
+
+    fn proof_of_work(blockheader: &mut Blockheader) {}
+
+    fn get_merkle(transactions: Vec<Transaction>) -> String {
+        unimplemented!()
+    }
+
 }
