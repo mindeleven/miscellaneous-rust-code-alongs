@@ -136,8 +136,6 @@ impl Chain {
         unimplemented!()
     }
 
-    fn proof_of_work(blockheader: &mut Blockheader) {}
-
     fn get_merkle(curr_transaction: Vec<Transaction>) -> String {
         let mut merkle = Vec::new();
         for t in curr_transaction {
@@ -159,6 +157,27 @@ impl Chain {
         }
 
         merkle.pop().unwrap()
+    }
+
+    fn proof_of_work(header: &mut Blockheader) {
+        loop {
+            let hash = Chain::hash(header);
+            let slice = &hash[..header.difficulty as usize];
+            match slice.parse::<u32>() {
+                Ok(val) => {
+                    if val != 0 {
+                        header.nonce += 1;
+                    } else {
+                        println!("Block hash: {}", hash);
+                        break;
+                    }
+                },
+                Err(_) => {
+                    header.nonce += 1;
+                    continue;
+                }
+            }
+        }
     }
 
 }
