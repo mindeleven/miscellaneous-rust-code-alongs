@@ -70,18 +70,26 @@ impl Chain {
             receiver: self.miner_addr.clone(),
             amount: self.reward,
         };
-
+        
+        // creating a block
         let mut block = Block {
             header: header,
             count: 0,
             transactions: vec![],
         };
         
+        // setting all the information for the block
         block.transactions.push(reward_trans);
         block.transactions.append(&mut self.curr_transaction);
         block.count = block.transactions.len() as u32;
         block.header.merkle = Chain::get_merkle(block.transactions.clone());
         Chain::proof_of_work(&mut block.header);
+
+        // printing block with extended debugger
+        println!("{:#?}", block);
+
+        // adding the block to the chain
+        self.chain.push(block);
 
         true
     }
