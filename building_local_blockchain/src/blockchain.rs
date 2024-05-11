@@ -135,7 +135,7 @@ impl Chain {
     fn get_merkle(curr_transaction: Vec<Transaction>) -> String {
         let mut merkle = Vec::new();
         for t in curr_transaction {
-            let hash =Chain::hash(t);
+            let hash =Chain::hash(&t);
             merkle.push(hash);
         }
 
