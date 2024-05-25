@@ -1,5 +1,26 @@
 /// Coding along with the blog post Anatomy of a Terminal Emulator by Aram Drevekenin
 /// Code examples and comments are borrowed from https://poor.dev/terminal-anatomy/
+/// Defining some terms as used in the blog post:
+/// 
+/// terminal emulator & shell are executable applications that run on our machine
+/// 
+/// terminal emulator :: graphical application, interprets data coming from the shell
+///     and displays it on screen
+/// 
+/// shell :: provides an interface to the operating system, allows interactin with its file-system
+/// 
+/// pty (pseudoterminal) :: connects terminal emulator & shell
+///     & provides a bi-directional asynchronous communication channel (STDIN & STDOUT)
+/// 
+/// STDIN :: represents the communication directed from the terminal emulator to the shell
+/// STDOUT :: refers to the communication directed from the shell to the terminal emulator
+/// 
+/// “primary” and “secondary” side of the pty ::
+/// -> on primary side is the terminal emulator
+/// -> on the secondary side is the shell
+/// 
+/// now to the default program ::
+/// -> a program that spawns a pty & starts the machine’s default shell on its secondary side
 
 use std::os::fd::RawFd;
 
