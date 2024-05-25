@@ -1,3 +1,34 @@
+/// Coding along with the blog post Anatomy of a Terminal Emulator by Aram Drevekenin
+/// Code examples and comments are borrowed from https://poor.dev/terminal-anatomy/
+
+use std::os::fd::RawFd;
+
+fn read_from_fd(fd: RawFd) -> Option<Vec<u8>> {
+    unimplemented!()
+}
+
+/// function returns the STDOUT file descriptor of the primary side of the pty
+fn spawn_pty_with_shell(default_shell: String) -> RawFd {
+    unimplemented!()
+}
+
 fn main() {
-    println!("Hello, world!");
+    // getting the path to the system’s default shell from the SHELL environment variable
+    let default_shell = std::env::var("SHELL")
+        .expect("could not find default shell from $SHELL");
+    
+    // start it (system’s default shell) in a new process on the secondary side of a pty
+    let sdtout_fd = spawn_pty_with_shell(default_shell);
+    let mut read_buffer = vec![];
+    loop {
+        match read_from_fd(sdtout_fd) {
+            Some(mut read_bytes) => {
+                read_buffer.append(&mut read_bytes);
+            },
+            None => {
+                println!("{:?}", String::from_utf8(read_buffer).unwrap());
+                std::process::exit(0);
+            },
+        }
+    }
 }
