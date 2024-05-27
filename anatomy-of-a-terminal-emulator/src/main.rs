@@ -36,7 +36,32 @@ fn read_from_fd(fd: RawFd) -> Option<Vec<u8>> {
 
 // function returns the STDOUT file descriptor of the primary side of the pty
 fn spawn_pty_with_shell(default_shell: String) -> RawFd {
-    unimplemented!()
+    // forkpty is a libc function that forks the current process
+    match forkpty(None, None) {
+        Ok(fork_pty_res) => {
+            // code on the Ok side runs in both the parent and the child process
+            let stdout_fd = fork_pty_res.master;
+            // we distinguish between parent and the child process by the ForkResult
+            if let ForkResult::Child = fork_pty_res.fork_result {
+                // I'm the secondary part of the pty
+                // the child process
+                // (1) we run the default shell
+                Command::new(&default_shell)
+                    .spawn()
+                    .expect("failed to spawn");
+                // (2) sleep for 2 seconds to let it load 
+                std::thread::sleep(std::time::Duration::from_millis(2000));
+                // (3) and then exit
+                std::process::exit(0);
+            }
+            // in the parent process we return the stdout file descriptor to the program 
+            // so that it can read what information the child sends it
+            stdout_fd
+        },
+        Err(e) => {
+            panic!("failed to fork {:?}", e);
+        }
+    }
 }
 
 fn main() {
