@@ -25,13 +25,29 @@
 // forkpty is a libc function that forks the current process
 // it starts a pty and places the child part of the fork on the secondary side of the pty
 use nix::pty::forkpty;
-use nix::unistd::ForkResult;
+use nix::unistd::{
+    ForkResult, 
+    read
+};
 use std::os::fd::RawFd;
 use std::process::Command;
 
 // reading from the STDOUT file descriptor
+// accepting the file descriptor that we got from the spawn_pty_with_shell
 fn read_from_fd(fd: RawFd) -> Option<Vec<u8>> {
-    unimplemented!()
+    // https://linux.die.net/man/7/pipe
+    let mut read_buffer = [0; 65536];
+    // sending the file descriptor to the read system call along with a mutable buffer
+    let read_result = read(fd, &mut read_buffer);
+    match read_result {
+        // read() will read up to that amount of bytes
+        // then place them in the buffer we gave it
+        // and return us the number of bytes read
+        // Ok(...) allocates a vector from the read portion of our read_buffer 
+        //    and returns it to our main program
+        Ok(bytes_read) => Some(read_buffer[..bytes_read].to_vec()),
+        Err(_e) => None,
+    }
 }
 
 // function returns the STDOUT file descriptor of the primary side of the pty
