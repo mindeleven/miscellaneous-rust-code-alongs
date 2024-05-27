@@ -16,19 +16,25 @@
 /// STDOUT :: refers to the communication directed from the shell to the terminal emulator
 /// 
 /// “primary” and “secondary” side of the pty ::
-/// -> on primary side is the terminal emulator
+/// -> on the primary side is the terminal emulator
 /// -> on the secondary side is the shell
 /// 
 /// now to the default program ::
 /// -> a program that spawns a pty & starts the machine’s default shell on its secondary side
 
+// forkpty is a libc function that forks the current process
+// it starts a pty and places the child part of the fork on the secondary side of the pty
+use nix::pty::forkpty;
+use nix::unistd::ForkResult;
 use std::os::fd::RawFd;
+use std::process::Command;
 
+// reading from the STDOUT file descriptor
 fn read_from_fd(fd: RawFd) -> Option<Vec<u8>> {
     unimplemented!()
 }
 
-/// function returns the STDOUT file descriptor of the primary side of the pty
+// function returns the STDOUT file descriptor of the primary side of the pty
 fn spawn_pty_with_shell(default_shell: String) -> RawFd {
     unimplemented!()
 }
@@ -42,11 +48,13 @@ fn main() {
     let sdtout_fd = spawn_pty_with_shell(default_shell);
     let mut read_buffer = vec![];
     loop {
+        // reading from the STDOUT file descriptor
         match read_from_fd(sdtout_fd) {
             Some(mut read_bytes) => {
                 read_buffer.append(&mut read_bytes);
             },
             None => {
+                // we read until there’s no more data to read
                 println!("{:?}", String::from_utf8(read_buffer).unwrap());
                 std::process::exit(0);
             },
