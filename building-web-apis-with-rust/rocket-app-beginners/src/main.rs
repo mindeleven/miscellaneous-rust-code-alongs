@@ -3,11 +3,17 @@
 
 #[macro_use] extern crate rocket;
 
+// importing json macro
+use rocket::serde::json::{
+    Value,
+    json
+};
+
 // endpoint
 // can be called on terminal with `curl 127.0.0.1:8000``
 #[get("/")]
-fn index() -> &'static str {
-    "Hello, world from Rocket!\n"
+fn index() -> Value {
+    json!("Hello, world from JSON!")
 }
 
 #[launch]
