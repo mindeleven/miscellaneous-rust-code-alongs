@@ -2,6 +2,15 @@
 /// https://en.wikipedia.org/wiki/Basic_access_authentication
 /// curl 127.0.0.1:8000/rustaceans -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
 
+use rocket::{
+    request::{
+        FromRequest, 
+        Request, 
+        Outcome
+    },
+    http::Status
+};
+
 pub struct BasicAuth {
     pub username: String,
     pub password: String,
@@ -38,5 +47,25 @@ impl BasicAuth {
             username,
             password
         })
+    }
+}
+
+// implementing trait for basic authentication
+// https://api.rocket.rs/v0.4/rocket/request/trait.FromRequest
+// Trait implemented by request guards to derive a value from incoming requests
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for BasicAuth {
+    type Error = ();
+
+    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+        // get_one() -> Returns the first value stored for the header with name name if there is one
+        let auth_header = request.headers().get_one("Authorization");
+        if let Some(auth_header) = auth_header {
+            if let Some(auth) = Self::from_authorization_header(auth_header) {
+                return Outcome::Success(auth)
+            }
+        }
+        
+        Outcome::Error((Status::Unauthorized, ()))
     }
 }
