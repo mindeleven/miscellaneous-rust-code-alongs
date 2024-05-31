@@ -19,9 +19,11 @@ use rocket::{response::status, serde::json::{
     json, Value
 }};
 
-// curl 127.0.0.1:8000/rustaceans
+// no auth -> curl 127.0.0.1:8000/rustaceans
+// with auth ->
+// curl 127.0.0.1:8000/rustaceans -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
 #[get("/rustaceans")]
-fn get_rustaceans() -> Value {
+fn get_rustaceans(_auth: BasicAuth) -> Value {
     json!([
         { "id": 1,  "name": "John Doe" },
         { "id": 1,  "name": "Jane Doe" }
@@ -74,6 +76,13 @@ fn not_found() -> Value {
     json!("Not found!")
 }
 
+// HTTP status code 401, “Unauthorized,”
+#[allow(dead_code)]
+#[catch(401)]
+fn not_authorized() -> Value {
+    json!("The request requires user authentication!")
+}
+
 #[launch]
 fn rocket() -> _ {
     rocket::build()
@@ -85,6 +94,7 @@ fn rocket() -> _ {
             delete_rustaceans
         ])
         .register("/", catchers![
-            not_found
+            not_found,
+            not_authorized
         ])
 }
