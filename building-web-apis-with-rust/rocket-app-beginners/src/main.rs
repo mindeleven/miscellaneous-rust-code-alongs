@@ -62,13 +62,25 @@ fn index() -> Value {
     json!("Hello, world from JSON!")
 } */
 
+// default error catcher
+// `curl 127.0.0.1:8000/ -I` or `curl 127.0.0.1:8000/` 
+#[allow(dead_code)]
+#[catch(404)]
+fn not_found() -> Value {
+    json!("Not found!")
+}
+
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![
-        get_rustaceans,
-        view_rustaceans,
-        update_rustaceans,
-        create_rustaceans,
-        delete_rustaceans
-    ])
+    rocket::build()
+        .mount("/", routes![
+            get_rustaceans,
+            view_rustaceans,
+            update_rustaceans,
+            create_rustaceans,
+            delete_rustaceans
+        ])
+        .register("/", catchers![
+            not_found
+        ])
 }
