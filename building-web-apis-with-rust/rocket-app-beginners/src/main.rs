@@ -10,6 +10,10 @@
 
 #[macro_use] extern crate rocket;
 
+mod auth;
+
+use auth::BasicAuth;
+
 // importing json macro
 use rocket::{response::status, serde::json::{
     json, Value
