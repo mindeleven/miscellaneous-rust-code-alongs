@@ -1,16 +1,15 @@
 /// example from Wikipedia: Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+/// username: Aladdin, password: open sesame
 /// https://en.wikipedia.org/wiki/Basic_access_authentication
 /// curl 127.0.0.1:8000/rustaceans -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
 
 use rocket::{
-    request::{
-        FromRequest, 
-        Request, 
-        Outcome
-    },
-    http::Status
+    http::Status, request::{
+        FromRequest, Outcome, Request
+    }
 };
 
+#[allow(dead_code)]
 pub struct BasicAuth {
     pub username: String,
     pub password: String,
@@ -42,6 +41,12 @@ impl BasicAuth {
         }
 
         let (username, password) = (split[0].to_string(), split[1].to_string());
+        
+        /* // println!("username: {}, password: {}", username, password);
+        // username: Aladdin, password: open sesame
+        if username != "Aladdin" && password != "open sesame" {
+            return None;
+        } */
 
         Some(BasicAuth {
             username,
@@ -52,7 +57,7 @@ impl BasicAuth {
 
 // implementing trait for basic authentication
 // https://api.rocket.rs/v0.4/rocket/request/trait.FromRequest
-// Trait implemented by request guards to derive a value from incoming requests
+// trait implemented by request guards to derive a value from incoming requests
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for BasicAuth {
     type Error = ();
@@ -60,12 +65,23 @@ impl<'r> FromRequest<'r> for BasicAuth {
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         // get_one() -> Returns the first value stored for the header with name name if there is one
         let auth_header = request.headers().get_one("Authorization");
+        /* 
         if let Some(auth_header) = auth_header {
             if let Some(auth) = Self::from_authorization_header(auth_header) {
                 return Outcome::Success(auth)
             }
         }
-        
+        */
+        // now with username / password check
+        if let Some(auth_header) = auth_header {
+            if let Some(auth) = Self::from_authorization_header(auth_header) {
+                // Check username / pass
+                if auth.username == String::from("Aladdin") && auth.password == String::from("open sesame") {
+                    return Outcome::Success(auth)
+                }
+            }
+        }
+
         Outcome::Error((Status::Unauthorized, ()))
     }
 }
