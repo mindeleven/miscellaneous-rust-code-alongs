@@ -15,9 +15,13 @@ mod auth;
 use auth::BasicAuth;
 
 // importing json macro
-use rocket::{response::status, serde::json::{
-    json, Value
-}};
+use rocket::{
+    response::status, 
+    serde::json:: {
+        json, 
+        Value
+    }
+};
 
 // no auth -> curl 127.0.0.1:8000/rustaceans
 // with auth ->
@@ -38,8 +42,9 @@ fn view_rustaceans(id: i32) -> Value {
     ])
 }
  // curl 127.0.0.1:8000/rustaceans/ -X POST -H 'Content-type: application/json'
-#[post("/rustaceans", format="json")]
-fn create_rustaceans() -> Value {
+ // curl 127.0.0.1:8000/rustaceans/ -X POST -H 'Content-type: application/json' -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
+ #[post("/rustaceans", format="json")]
+fn create_rustaceans(_auth: BasicAuth) -> Value {
     json!([
         { "id": 3,  "name": "John Doe", "email": "john.doe@example.com" }
     ])
@@ -47,7 +52,7 @@ fn create_rustaceans() -> Value {
 
 // curl 127.0.0.1:8000/rustaceans/12 -X PUT -H 'Content-type: application/json'
 #[put("/rustaceans/<id>", format="json")]
-fn update_rustaceans(id: i32) -> Value {
+fn update_rustaceans(id: i32, _auth: BasicAuth) -> Value {
     json!([
         { "id": id,  "name": "John Doe", "email": "john.doe@example.com" }
     ])
@@ -57,7 +62,7 @@ fn update_rustaceans(id: i32) -> Value {
 // the -I parameter varifies that there is no content
 #[allow(unused_variables)]
 #[delete("/rustaceans/<id>")]
-fn delete_rustaceans(id: i32) -> status::NoContent {
+fn delete_rustaceans(id: i32, _auth: BasicAuth) -> status::NoContent {
     status::NoContent
 }
 
