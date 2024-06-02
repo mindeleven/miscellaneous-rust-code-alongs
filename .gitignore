@@ -19,3 +19,7 @@ Cargo.lock
 
 # Remove file files created by Rust as examples
 *hello*.txt
+
+/target
+*.sqlite
+*.sqlite-*
