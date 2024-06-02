@@ -22,12 +22,16 @@ use rocket::{
         Value
     }
 };
+use rocket_sync_db_pools::database;
+
+#[database("sqlite")]
+struct DbConn(diesel::SqliteConnection);
 
 // no auth -> curl 127.0.0.1:8000/rustaceans
 // with auth ->
 // curl 127.0.0.1:8000/rustaceans -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
 #[get("/rustaceans")]
-fn get_rustaceans(_auth: BasicAuth) -> Value {
+fn get_rustaceans(_auth: BasicAuth, _db: DbConn) -> Value {
     json!([
         { "id": 1,  "name": "John Doe" },
         { "id": 1,  "name": "Jane Doe" }
@@ -102,4 +106,5 @@ fn rocket() -> _ {
             not_found,
             not_authorized
         ])
+        .attach(DbConn::fairing()) // attaching a fairing before launching
 }
