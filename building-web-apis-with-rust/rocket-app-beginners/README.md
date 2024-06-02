@@ -8,6 +8,14 @@ The purpose of this repository is to document my learning journey of the Rust pr
 
 Coding along with Section 4 of the Udemy Couse [Building web APIs with Rust](https://www.udemy.com/course/web-dev-with-rust-rocket-diesel/) by Paris Liakos.
 
+Create Sqlite database with `diesel setup --database-url ./database.sqlite`
+
+Create Rustaceans table with `diesel migration generate create_rustaceans`
+
+Running migrations with `diesel migration run --database-url=database.sqlite`
+
+You can roll back the migration with `diesel migration revert --database-url=database.sqlite`
+
 
 ## Disclaimer
 
