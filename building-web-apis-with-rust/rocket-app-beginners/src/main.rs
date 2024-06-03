@@ -60,19 +60,27 @@ async fn get_rustaceans(_auth: BasicAuth, db: DbConn) -> Value {
     */
 }
 
-// curl 127.0.0.1:8000/rustaceans/123
+// curl 127.0.0.1:8000/rustaceans/123 -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
 #[get("/rustaceans/<id>")]
-fn view_rustaceans(id: i32) -> Value {
-    json!([
+async fn view_rustaceans(id: i32, _auth: BasicAuth, db: DbConn) -> Value {
+    db.run(move |c| {
+        let rustaceans = rustaceans::table
+            .find(id)
+            .get_result::<Rustacean>(c)
+            .expect("Database error when selecting rustacean");
+
+        json!(rustaceans)
+    }).await
+
+    /* json!([
         { "id": id,  "name": "John Doe", "email": "john.doe@example.com" }
-    ])
+    ]) */
 }
  // curl 127.0.0.1:8000/rustaceans/ -X POST -H 'Content-type: application/json'
  // curl 127.0.0.1:8000/rustaceans/ -X POST -H 'Content-type: application/json' -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
  // with data ... -d {"name": "Jane", "email": "jane@foo.xrz"}
  #[post("/rustaceans", format="json", data="<new_rustacean>")]
 async fn create_rustaceans(_auth: BasicAuth, db: DbConn, new_rustacean: Json<NewRustacean>) -> Value {
-
     db.run(|c| {
         let result = diesel::insert_into(rustaceans::table)
             .values(new_rustacean.into_inner())
