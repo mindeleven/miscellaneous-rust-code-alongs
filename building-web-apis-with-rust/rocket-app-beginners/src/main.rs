@@ -124,6 +124,13 @@ fn not_authorized() -> Value {
     json!("The request requires user authentication!")
 }
 
+// HTTP status code 401, “Unauthorized,”
+#[allow(dead_code)]
+#[catch(422)]
+fn unprocessable_entity() -> Value {
+    json!("The server can't process your request!")
+}
+
 #[launch]
 fn rocket() -> _ {
     rocket::build()
@@ -136,7 +143,8 @@ fn rocket() -> _ {
         ])
         .register("/", catchers![
             not_found,
-            not_authorized
+            not_authorized,
+            unprocessable_entity
         ])
         .attach(DbConn::fairing()) // attaching a fairing before launching
 }
