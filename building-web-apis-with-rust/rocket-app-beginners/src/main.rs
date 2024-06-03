@@ -11,18 +11,27 @@
 #[macro_use] extern crate rocket;
 
 mod auth;
+mod schema;
+mod models;
 
 use auth::BasicAuth;
 
+use diesel::prelude::*;
 // importing json macro
 use rocket::{
     response::status, 
     serde::json:: {
-        json, 
+        json,
+        Json,
         Value
     }
 };
 use rocket_sync_db_pools::database;
+use schema::rustaceans;
+use crate::models::{
+    Rustacean, 
+    NewRustacean
+};
 
 #[database("sqlite")]
 struct DbConn(diesel::SqliteConnection);
@@ -31,11 +40,24 @@ struct DbConn(diesel::SqliteConnection);
 // with auth ->
 // curl 127.0.0.1:8000/rustaceans -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
 #[get("/rustaceans")]
-fn get_rustaceans(_auth: BasicAuth, _db: DbConn) -> Value {
+async fn get_rustaceans(_auth: BasicAuth, db: DbConn) -> Value {
+    // db is a connection pool
+    // getting a connection from the pool with db.run()
+    // run will accept connection in callback and run async
+    db.run(|c| {
+        let rustaceans = rustaceans::table
+            .order(rustaceans::id.desc())
+            .limit(1000)
+            .load::<Rustacean>(c)
+            .expect("Database error");
+        json!(rustaceans)
+    }).await
+    /*
     json!([
         { "id": 1,  "name": "John Doe" },
         { "id": 1,  "name": "Jane Doe" }
     ])
+    */
 }
 
 // curl 127.0.0.1:8000/rustaceans/123
@@ -47,11 +69,21 @@ fn view_rustaceans(id: i32) -> Value {
 }
  // curl 127.0.0.1:8000/rustaceans/ -X POST -H 'Content-type: application/json'
  // curl 127.0.0.1:8000/rustaceans/ -X POST -H 'Content-type: application/json' -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
- #[post("/rustaceans", format="json")]
-fn create_rustaceans(_auth: BasicAuth) -> Value {
-    json!([
+ // with data ... -d {"name": "Jane", "email": "jane@foo.xrz"}
+ #[post("/rustaceans", format="json", data="<new_rustacean>")]
+async fn create_rustaceans(_auth: BasicAuth, db: DbConn, new_rustacean: Json<NewRustacean>) -> Value {
+
+    db.run(|c| {
+        let result = diesel::insert_into(rustaceans::table)
+            .values(new_rustacean.into_inner())
+            .execute(c)
+            .expect("Database error when inserting");
+        json!(result)
+    }).await
+
+    /* json!([
         { "id": 3,  "name": "John Doe", "email": "john.doe@example.com" }
-    ])
+    ]) */
 }
 
 // curl 127.0.0.1:8000/rustaceans/12 -X PUT -H 'Content-type: application/json'
