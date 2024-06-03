@@ -1,8 +1,8 @@
-use diesel::{deserialize::Queryable, prelude::Insertable};
+use diesel::{deserialize::Queryable, prelude::Insertable, AsChangeset};
 use rocket::serde::{Deserialize, Serialize};
 use crate::schema::rustaceans;
 
-#[derive(Serialize, Deserialize, Queryable)]
+#[derive(Serialize, Deserialize, Queryable, AsChangeset)]
 pub struct Rustacean {
     pub id: i32,
     pub name: String,

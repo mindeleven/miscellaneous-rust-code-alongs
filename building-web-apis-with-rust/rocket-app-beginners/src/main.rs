@@ -94,12 +94,21 @@ async fn create_rustaceans(_auth: BasicAuth, db: DbConn, new_rustacean: Json<New
     ]) */
 }
 
-// curl 127.0.0.1:8000/rustaceans/12 -X PUT -H 'Content-type: application/json'
-#[put("/rustaceans/<id>", format="json")]
-fn update_rustaceans(id: i32, _auth: BasicAuth) -> Value {
-    json!([
+// curl 127.0.0.1:8000/rustaceans/2 -X PUT -H 'Content-type: application/json' -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==' -d '{"name": "Jane Russel", "email": "jane@russel.xrz"}'
+#[put("/rustaceans/<id>", format="json", data="<rustacean>")]
+async fn update_rustaceans(id: i32, db: DbConn, _auth: BasicAuth, rustacean: Json<Rustacean>) -> Value {
+    db.run(move |c| {
+        let result = diesel::update(
+                rustaceans::table.find(id)
+            ).set(rustacean.into_inner())
+            .execute(c)
+            .expect("Database error when updating rustacean");
+        json!(result)
+    }).await
+    
+    /* json!([
         { "id": id,  "name": "John Doe", "email": "john.doe@example.com" }
-    ])
+    ]) */
 }
 
 // curl 127.0.0.1:8000/rustaceans/12 -X DELETE -I
