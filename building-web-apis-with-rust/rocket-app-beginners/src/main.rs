@@ -115,8 +115,16 @@ async fn update_rustaceans(id: i32, db: DbConn, _auth: BasicAuth, rustacean: Jso
 // the -I parameter varifies that there is no content
 #[allow(unused_variables)]
 #[delete("/rustaceans/<id>")]
-fn delete_rustaceans(id: i32, _auth: BasicAuth) -> status::NoContent {
-    status::NoContent
+async fn delete_rustaceans(id: i32, db: DbConn, _auth: BasicAuth) -> status::NoContent {
+    db.run(move |c| {
+        diesel::delete(
+                rustaceans::table.find(id))
+            .execute(c)
+            .expect("Database error when deleting rustacean");
+        status::NoContent
+    }).await
+
+    // status::NoContent
 }
 
 // endpoint
