@@ -99,7 +99,10 @@ async fn update_rustaceans(id: i32, db: DbConn, _auth: BasicAuth, rustacean: Jso
     db.run(move |c| {
         let result = diesel::update(
                 rustaceans::table.find(id)
-            ).set(rustacean.into_inner())
+            ).set((
+                rustaceans::name.eq(rustacean.name.to_owned()),
+                rustaceans::email.eq(rustacean.email.to_owned()),
+            ))
             .execute(c)
             .expect("Database error when updating rustacean");
         json!(result)
