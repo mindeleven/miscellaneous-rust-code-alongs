@@ -13,6 +13,7 @@
 mod auth;
 mod schema;
 mod models;
+mod repositories;
 
 use auth::BasicAuth;
 
