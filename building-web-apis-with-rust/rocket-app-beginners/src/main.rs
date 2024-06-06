@@ -61,26 +61,16 @@ async fn view_rustaceans(id: i32, _auth: BasicAuth, db: DbConn) -> Value {
             .expect("Database error when selecting rustacean");
         json!(rustaceans)
     }).await
-
-    /* json!([
-        { "id": id,  "name": "John Doe", "email": "john.doe@example.com" }
-    ]) */
 }
  // curl 127.0.0.1:8000/rustaceans/ -X POST -H 'Content-type: application/json'
  // curl 127.0.0.1:8000/rustaceans/ -X POST -H 'Content-type: application/json' -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==' -d '{"name": "Jane", "email": "jane@foo.xrz"}'
  #[post("/rustaceans", format="json", data="<new_rustacean>")]
 async fn create_rustaceans(_auth: BasicAuth, db: DbConn, new_rustacean: Json<NewRustacean>) -> Value {
     db.run(|c| {
-        let result = diesel::insert_into(rustaceans::table)
-            .values(new_rustacean.into_inner())
-            .execute(c)
+        let result = RustaceanRepository::create(c, new_rustacean.into_inner())
             .expect("Database error when inserting");
         json!(result)
     }).await
-
-    /* json!([
-        { "id": 3,  "name": "John Doe", "email": "john.doe@example.com" }
-    ]) */
 }
 
 // curl 127.0.0.1:8000/rustaceans/3 -X PUT -H 'Content-type: application/json' -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==' -d '{"name": "Jane Z. Russel", "email": "janeZ@russel.xrz"}'
