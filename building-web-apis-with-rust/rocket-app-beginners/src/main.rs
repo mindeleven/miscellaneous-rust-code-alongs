@@ -19,8 +19,7 @@ use auth::BasicAuth;
 
 // importing json macro
 use rocket::{
-    response::status, 
-    serde::json:: {
+    http::Status, response::status::{self, Custom}, serde::json:: {
         json,
         Json,
         Value
@@ -40,18 +39,18 @@ struct DbConn(diesel::SqliteConnection);
 // with auth ->
 // curl 127.0.0.1:8000/rustaceans -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
 #[get("/rustaceans")]
-async fn get_rustaceans(_auth: BasicAuth, db: DbConn) -> Value {
+async fn get_rustaceans(_auth: BasicAuth, db: DbConn) -> Result<Value, Custom<Value>> {
     // db is a connection pool
     // getting a connection from the pool with db.run()
     // run will accept connection in callback and run async
     db.run(|c| {
-        let rustaceans = RustaceanRepository::find_multiple(c, 1000)
-            .expect("Database error");
-        json!(rustaceans)
+        RustaceanRepository::find_multiple(c, 100)
+            .map(|rustaceans| json!(rustaceans))
+            .map_err(|e| Custom(Status::InternalServerError, json!(e.to_string())))
     }).await
 }
 
-// curl 127.0.0.1:8000/rustaceans/1 -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
+// curl 127.0.0.1:8000/rustaceans/3 -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
 #[get("/rustaceans/<id>")]
 async fn view_rustaceans(id: i32, _auth: BasicAuth, db: DbConn) -> Value {
     db.run(move |c| {
@@ -61,7 +60,7 @@ async fn view_rustaceans(id: i32, _auth: BasicAuth, db: DbConn) -> Value {
     }).await
 }
  // curl 127.0.0.1:8000/rustaceans/ -X POST -H 'Content-type: application/json'
- // curl 127.0.0.1:8000/rustaceans/ -X POST -H 'Content-type: application/json' -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==' -d '{"name": "Jane", "email": "jane@foo.xrz"}'
+ // curl 127.0.0.1:8000/rustaceans/ -X POST -H 'Content-type: application/json' -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==' -d '{"name": "Mike", "email": "mike@foo.xrz"}'
  #[post("/rustaceans", format="json", data="<new_rustacean>")]
 async fn create_rustaceans(_auth: BasicAuth, db: DbConn, new_rustacean: Json<NewRustacean>) -> Value {
     db.run(|c| {
@@ -71,7 +70,7 @@ async fn create_rustaceans(_auth: BasicAuth, db: DbConn, new_rustacean: Json<New
     }).await
 }
 
-// curl 127.0.0.1:8000/rustaceans/3 -X PUT -H 'Content-type: application/json' -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==' -d '{"name": "Jane Z. Russel", "email": "janeZ@russel.xrz"}'
+// curl 127.0.0.1:8000/rustaceans/3 -X PUT -H 'Content-type: application/json' -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==' -d '{"name": "Bob", "email": "Bob@blacklodege.xrz"}'
 #[put("/rustaceans/<id>", format="json", data="<rustacean>")]
 async fn update_rustaceans(id: i32, db: DbConn, _auth: BasicAuth, rustacean: Json<Rustacean>) -> Value {
     db.run(move |c| {
@@ -81,7 +80,7 @@ async fn update_rustaceans(id: i32, db: DbConn, _auth: BasicAuth, rustacean: Jso
     }).await
 }
 
-// curl 127.0.0.1:8000/rustaceans/2 -X DELETE -I -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
+// curl 127.0.0.1:8000/rustaceans/1 -X DELETE -I -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
 // the -I parameter varifies that there is no content
 #[allow(unused_variables)]
 #[delete("/rustaceans/<id>")]
