@@ -42,8 +42,14 @@ impl RustaceanRepository {
                 rustaceans::email.eq(rustacean.email.to_owned()),
             ))
             .execute(c)?;
-        
+
         Self::find(c, id)
     }
 
+    pub fn delete(c: &mut SqliteConnection, id: i32) -> QueryResult<usize> {
+        diesel::delete(
+            rustaceans::table.find(id))
+        .execute(c)
+    }
+    
 }

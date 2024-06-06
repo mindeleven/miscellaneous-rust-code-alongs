@@ -17,7 +17,6 @@ mod repositories;
 
 use auth::BasicAuth;
 
-use diesel::prelude::*;
 // importing json macro
 use rocket::{
     response::status, 
@@ -28,7 +27,6 @@ use rocket::{
     }
 };
 use rocket_sync_db_pools::database;
-use schema::rustaceans;
 use crate::models::{
     Rustacean, 
     NewRustacean
@@ -81,10 +79,6 @@ async fn update_rustaceans(id: i32, db: DbConn, _auth: BasicAuth, rustacean: Jso
             .expect("Database error when updating rustacean");
         json!(result)
     }).await
-    
-    /* json!([
-        { "id": id,  "name": "John Doe", "email": "john.doe@example.com" }
-    ]) */
 }
 
 // curl 127.0.0.1:8000/rustaceans/2 -X DELETE -I -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
@@ -93,9 +87,7 @@ async fn update_rustaceans(id: i32, db: DbConn, _auth: BasicAuth, rustacean: Jso
 #[delete("/rustaceans/<id>")]
 async fn delete_rustaceans(id: i32, db: DbConn, _auth: BasicAuth) -> status::NoContent {
     db.run(move |c| {
-        diesel::delete(
-                rustaceans::table.find(id))
-            .execute(c)
+        RustaceanRepository::delete(c, id)
             .expect("Database error when deleting rustacean");
         status::NoContent
     }).await
