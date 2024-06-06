@@ -34,4 +34,16 @@ impl RustaceanRepository {
             .order(rustaceans::id.desc())
             .first(c)
     }
+
+    pub fn save(c: &mut SqliteConnection, id: i32, rustacean: Rustacean) -> QueryResult<Rustacean> {
+        diesel::update(rustaceans::table.find(id))
+            .set((
+                rustaceans::name.eq(rustacean.name.to_owned()),
+                rustaceans::email.eq(rustacean.email.to_owned()),
+            ))
+            .execute(c)?;
+        
+        Self::find(c, id)
+    }
+
 }

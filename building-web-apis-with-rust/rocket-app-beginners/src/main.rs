@@ -77,13 +77,7 @@ async fn create_rustaceans(_auth: BasicAuth, db: DbConn, new_rustacean: Json<New
 #[put("/rustaceans/<id>", format="json", data="<rustacean>")]
 async fn update_rustaceans(id: i32, db: DbConn, _auth: BasicAuth, rustacean: Json<Rustacean>) -> Value {
     db.run(move |c| {
-        let result = diesel::update(
-                rustaceans::table.find(id)
-            ).set((
-                rustaceans::name.eq(rustacean.name.to_owned()),
-                rustaceans::email.eq(rustacean.email.to_owned()),
-            ))
-            .execute(c)
+        let result = RustaceanRepository::save(c, id, rustacean.into_inner())
             .expect("Database error when updating rustacean");
         json!(result)
     }).await
