@@ -33,6 +33,7 @@ use crate::models::{
     Rustacean, 
     NewRustacean
 };
+use repositories::RustaceanRepository;
 
 #[database("sqlite")]
 struct DbConn(diesel::SqliteConnection);
@@ -46,30 +47,18 @@ async fn get_rustaceans(_auth: BasicAuth, db: DbConn) -> Value {
     // getting a connection from the pool with db.run()
     // run will accept connection in callback and run async
     db.run(|c| {
-        let rustaceans = rustaceans::table
-            .order(rustaceans::id.desc())
-            .limit(1000)
-            .load::<Rustacean>(c)
+        let rustaceans = RustaceanRepository::find_multiple(c, 1000)
             .expect("Database error");
         json!(rustaceans)
     }).await
-    /*
-    json!([
-        { "id": 1,  "name": "John Doe" },
-        { "id": 1,  "name": "Jane Doe" }
-    ])
-    */
 }
 
 // curl 127.0.0.1:8000/rustaceans/1 -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
 #[get("/rustaceans/<id>")]
 async fn view_rustaceans(id: i32, _auth: BasicAuth, db: DbConn) -> Value {
     db.run(move |c| {
-        let rustaceans = rustaceans::table
-            .find(id)
-            .get_result::<Rustacean>(c)
+        let rustaceans = RustaceanRepository::find(c, id)
             .expect("Database error when selecting rustacean");
-
         json!(rustaceans)
     }).await
 
