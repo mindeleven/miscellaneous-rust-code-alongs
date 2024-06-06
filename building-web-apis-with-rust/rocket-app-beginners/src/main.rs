@@ -52,31 +52,31 @@ async fn get_rustaceans(_auth: BasicAuth, db: DbConn) -> Result<Value, Custom<Va
 
 // curl 127.0.0.1:8000/rustaceans/3 -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
 #[get("/rustaceans/<id>")]
-async fn view_rustaceans(id: i32, _auth: BasicAuth, db: DbConn) -> Value {
+async fn view_rustaceans(id: i32, _auth: BasicAuth, db: DbConn) -> Result<Value, Custom<Value>> {
     db.run(move |c| {
-        let rustaceans = RustaceanRepository::find(c, id)
-            .expect("Database error when selecting rustacean");
-        json!(rustaceans)
+        RustaceanRepository::find(c, id)
+            .map(|rustaceans| json!(rustaceans))
+            .map_err(|e| Custom(Status::InternalServerError, json!(e.to_string())))
     }).await
 }
  // curl 127.0.0.1:8000/rustaceans/ -X POST -H 'Content-type: application/json'
  // curl 127.0.0.1:8000/rustaceans/ -X POST -H 'Content-type: application/json' -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==' -d '{"name": "Mike", "email": "mike@foo.xrz"}'
  #[post("/rustaceans", format="json", data="<new_rustacean>")]
-async fn create_rustaceans(_auth: BasicAuth, db: DbConn, new_rustacean: Json<NewRustacean>) -> Value {
+async fn create_rustaceans(_auth: BasicAuth, db: DbConn, new_rustacean: Json<NewRustacean>) -> Result<Value, Custom<Value>> {
     db.run(|c| {
-        let result = RustaceanRepository::create(c, new_rustacean.into_inner())
-            .expect("Database error when inserting");
-        json!(result)
+        RustaceanRepository::create(c, new_rustacean.into_inner())
+            .map(|rustaceans| json!(rustaceans))
+            .map_err(|e| Custom(Status::InternalServerError, json!(e.to_string())))
     }).await
 }
 
 // curl 127.0.0.1:8000/rustaceans/3 -X PUT -H 'Content-type: application/json' -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==' -d '{"name": "Bob", "email": "Bob@blacklodege.xrz"}'
 #[put("/rustaceans/<id>", format="json", data="<rustacean>")]
-async fn update_rustaceans(id: i32, db: DbConn, _auth: BasicAuth, rustacean: Json<Rustacean>) -> Value {
+async fn update_rustaceans(id: i32, db: DbConn, _auth: BasicAuth, rustacean: Json<Rustacean>) -> Result<Value, Custom<Value>> {
     db.run(move |c| {
-        let result = RustaceanRepository::save(c, id, rustacean.into_inner())
-            .expect("Database error when updating rustacean");
-        json!(result)
+        RustaceanRepository::save(c, id, rustacean.into_inner())
+            .map(|rustaceans| json!(rustaceans))
+            .map_err(|e| Custom(Status::InternalServerError, json!(e.to_string())))
     }).await
 }
 
@@ -84,14 +84,12 @@ async fn update_rustaceans(id: i32, db: DbConn, _auth: BasicAuth, rustacean: Jso
 // the -I parameter varifies that there is no content
 #[allow(unused_variables)]
 #[delete("/rustaceans/<id>")]
-async fn delete_rustaceans(id: i32, db: DbConn, _auth: BasicAuth) -> status::NoContent {
+async fn delete_rustaceans(id: i32, db: DbConn, _auth: BasicAuth) -> Result<status::NoContent, Custom<Value>> {
     db.run(move |c| {
         RustaceanRepository::delete(c, id)
-            .expect("Database error when deleting rustacean");
-        status::NoContent
+            .map(|_| status::NoContent)
+            .map_err(|e| Custom(Status::InternalServerError, json!(e.to_string())))
     }).await
-
-    // status::NoContent
 }
 
 // endpoint
