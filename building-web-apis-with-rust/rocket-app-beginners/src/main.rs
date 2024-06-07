@@ -31,6 +31,7 @@ use crate::models::{
     NewRustacean
 };
 use repositories::RustaceanRepository;
+use diesel::result::Error::NotFound;
 
 #[database("sqlite")]
 struct DbConn(diesel::SqliteConnection);
@@ -56,7 +57,12 @@ async fn view_rustaceans(id: i32, _auth: BasicAuth, db: DbConn) -> Result<Value,
     db.run(move |c| {
         RustaceanRepository::find(c, id)
             .map(|rustaceans| json!(rustaceans))
-            .map_err(|e| Custom(Status::InternalServerError, json!(e.to_string())))
+            .map_err(|e| 
+                match e {
+                    NotFound => Custom(Status::NotFound, json!(e.to_string())),
+                    _ => Custom(Status::InternalServerError, json!(e.to_string())),
+                }
+            )
     }).await
 }
  // curl 127.0.0.1:8000/rustaceans/ -X POST -H 'Content-type: application/json'
