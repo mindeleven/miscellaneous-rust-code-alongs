@@ -52,6 +52,7 @@ async fn get_rustaceans(_auth: BasicAuth, db: DbConn) -> Result<Value, Custom<Va
 }
 
 // curl 127.0.0.1:8000/rustaceans/3 -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
+// curl 127.0.0.1:8000/rustaceans/567 -H 'Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
 #[get("/rustaceans/<id>")]
 async fn view_rustaceans(id: i32, _auth: BasicAuth, db: DbConn) -> Result<Value, Custom<Value>> {
     db.run(move |c| {
