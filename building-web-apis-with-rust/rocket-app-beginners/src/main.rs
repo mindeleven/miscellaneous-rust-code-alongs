@@ -19,11 +19,19 @@ use auth::BasicAuth;
 
 // importing json macro
 use rocket::{
-    http::Status, response::status::{self, Custom}, serde::json:: {
+    fairing::AdHoc, 
+    http::Status, 
+    response::status::{
+        self, 
+        Custom 
+    },
+    serde::json:: {
         json,
         Json,
         Value
-    }
+    }, 
+    Build,
+    Rocket
 };
 use rocket_sync_db_pools::database;
 use crate::models::{
@@ -128,6 +136,27 @@ fn unprocessable_entity() -> Value {
     json!("The server can't process your request!")
 }
 
+async fn run_db_migrations(rocket: Rocket<Build>) -> Rocket<Build> {
+    use diesel_migrations::{
+        embed_migrations,
+        EmbeddedMigrations,
+        MigrationHarness
+    };
+    
+    const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
+
+    DbConn::get_one(&rocket)
+        .await
+        .expect("Unable to retrieve connection")
+        .run(|c| {
+            c.run_pending_migrations(MIGRATIONS)
+                .expect("Migrations failed");
+        })
+        .await;
+
+    rocket
+}
+
 #[launch]
 fn rocket() -> _ {
     rocket::build()
@@ -144,4 +173,5 @@ fn rocket() -> _ {
             unprocessable_entity
         ])
         .attach(DbConn::fairing()) // attaching a fairing before launching
+        .attach(AdHoc::on_ignite("Diesel migrations", run_db_migrations))
 }
