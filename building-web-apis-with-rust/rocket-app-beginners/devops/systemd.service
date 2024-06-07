@@ -1,0 +1,16 @@
+[Unit]
+Description=My Rocket application
+
+[Service]
+User=paris
+Group=www-data
+# The user www-data should own this directory
+WorkingDirectory=/var/www/rocket-app/
+Environment="ROCKET_ENV=prod"
+Environment="ROCKET_ADDRESS=127.0.0.1"
+Environment="ROCKET_PORT=8000"
+Environment="ROCKET_DATABASES={sqlite={url=./database.sqlite}}"
+ExecStart=/var/www/rocket-app/rocket-app
+
+[Install]
+WantedBy=multi-user.target
