@@ -1,6 +1,8 @@
 /// https://www.youtube.com/watch?v=hzSsOV2F7-s
 /// Building an HTTP Server in Rust: Exploring TCP/IP, Socket Programming, and Asynchronous I/O 
 /// by codemoon // 4:29
+/// https://github.com/codemoonsxyz/toy-http-rs
+
 use std::{
     net::{TcpListener, TcpStream},
     io::{Read, Write},
@@ -9,6 +11,7 @@ use std::{
 
 mod request;
 mod response;
+mod http;
 
 fn handle_client(mut stream: TcpStream) {
     // read 20 bytes at a time from stream echoing back to stream
