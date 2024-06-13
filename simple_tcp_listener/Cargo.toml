@@ -1,0 +1,8 @@
+[package]
+name = "simple_tcp_listener"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = {version = "1.0.203", features = ["derive"]}
+derive_builder = "0.20.0"
