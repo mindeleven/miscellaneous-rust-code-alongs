@@ -12,6 +12,7 @@ use std::{
 mod request;
 mod response;
 mod http;
+mod server;
 
 fn handle_client(mut stream: TcpStream) {
     // read 20 bytes at a time from stream echoing back to stream
