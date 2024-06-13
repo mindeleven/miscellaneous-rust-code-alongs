@@ -1,6 +1,8 @@
 use std::collections::HashMap;
+use serde::{Deserialize, Serialize};
 
 /// a request is a message send by a client to a server
+#[derive(Debug)]
 pub struct Request {
     pub method: HttpMethod,
     pub uri: String,
@@ -9,7 +11,7 @@ pub struct Request {
     pub body: Option<String>
 }
 
-#[derive(Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default,PartialEq,Eq, Hash)]
 pub enum HttpMethod {
     #[default]
     GET,
