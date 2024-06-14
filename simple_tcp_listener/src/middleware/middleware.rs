@@ -9,7 +9,8 @@ use std::clone::Clone;
 
 pub type FutureRequest<'a> = Pin<Box<dyn Future<Output = Result<Request, Box<dyn std::error::Error + Send + 'a>>> + Send + 'a>>;
 
-
+// optional middleware we can add that will intercept our requests and run some particlar logic
+// or intercept our response and run some particlar logic
 pub trait Middleware: Send + Sync{
     fn on_request<'a>(&self, request: Request) -> FutureRequest<'a>;
     fn on_response<'a>(&self, response:Response) -> FutureResponse<'a>; 
