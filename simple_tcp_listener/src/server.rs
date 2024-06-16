@@ -163,4 +163,55 @@ async fn handle_route<'a>(request:Request, routes: &'a HashMap<Route, RouteHandl
     }
 }
 
+pub struct ServerBuilder {
+    address: Option<SocketAddr>,
+    routes: Option<HashMap<Route, RouteHandler>>,
+    middleware: Option<Arc<Vec<Box<dyn Middleware>>>>,
+}
 
+impl ServerBuilder {
+    pub fn new() -> Self {
+        Self {
+            address: None,
+            routes: Some(HashMap::new()),
+            middleware: Some(Arc::new(Vec::new()))
+        }
+    }
+
+    pub fn bind(mut self, socket: SocketAddr) -> Self {
+        self.address = Some(socket);
+        self
+    }
+
+    pub fn route(mut self, path: &str, method:HttpMethod, handler: RouteHandler) -> Self {
+        if let Some(routes) = self.routes.as_mut() {
+            routes.insert(Route{path:String::from(path),method}, handler);
+        } else {
+            let mut map = HashMap::new();
+            map.insert(Route{path:String::from(path),method}, handler);
+            self.routes = Some(map);
+        }
+        self
+    }
+    pub fn accept<M: Middleware + 'static>(mut self, middleware: M) -> Self {
+        if let Some(middleware_vec) = self.middleware.as_mut() {
+            Arc::get_mut(middleware_vec)
+                .expect("Cannot add middleware because there are other references to this Arc")
+                .push(Box::new(middleware));
+        } else {
+            self.middleware = Some(Arc::new(vec![Box::new(middleware)]));
+        }
+    
+        self
+    }
+
+    // String should be error
+    pub fn build(self) -> Result<Server, String> {
+        let address = self.address.ok_or("Address not set")?;
+        let routes = self.routes.ok_or("Routes Uninitalized")?;
+
+        let middleware = self.middleware.ok_or("MIddleware Error").unwrap();
+        Ok(Server { address, routes,middleware })
+    }
+    
+}
