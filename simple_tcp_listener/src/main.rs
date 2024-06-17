@@ -1,13 +1,11 @@
 /// https://www.youtube.com/watch?v=hzSsOV2F7-s
 /// Building an HTTP Server in Rust: Exploring TCP/IP, Socket Programming, and Asynchronous I/O 
-/// by codemoon 5:48
+/// by codemoon 6:18
 /// https://github.com/codemoonsxyz/toy-http-rs
 
 use std::{
     io::{Read, Write}, net::{SocketAddr, TcpStream}, thread
 };
-
-use server::Server;
 
 mod request;
 mod response;
