@@ -16,7 +16,7 @@ mod middleware;
 use std::collections::HashMap;
 
 use http::HttpStatusCode;
-use request::HttpMethod;
+use http::HttpMethod;
 use middleware::logger::LoggerMiddleware;
 use tokio::io::{AsyncReadExt, AsyncWriteExt, BufReader};
 use tokio::net::TcpListener;

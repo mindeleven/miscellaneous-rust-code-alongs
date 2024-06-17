@@ -1,6 +1,21 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+#[derive(Debug, Serialize, Deserialize, Clone, Default,PartialEq,Eq, Hash)]
+pub enum HttpMethod {
+    #[default]
+    GET,
+    POST,
+    PUT,
+    DELETE,
+    HEAD,
+    OPTIONS,
+    CONNECT,
+    TRACE,
+    PATCH,
+    OTHER(String)
+}
+
 #[derive(Debug, Default, Serialize, Deserialize, Clone, Copy, PartialEq,Eq, Hash)]
 pub enum HttpStatusCode {
     #[default]
