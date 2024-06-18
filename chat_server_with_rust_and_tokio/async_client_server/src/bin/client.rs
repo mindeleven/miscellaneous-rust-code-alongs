@@ -3,7 +3,7 @@
 /// in this example: reading lines from standard input
 
 use async_std::prelude::*;
-use async_chat::utils::{self, ChatResult};
+use async_client_server::utils::{self, ChatResult};
 use async_std::io;
 use async_std::net;
 
