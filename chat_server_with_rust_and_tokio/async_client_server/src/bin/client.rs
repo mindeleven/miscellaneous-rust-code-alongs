@@ -7,7 +7,7 @@ use async_client_server::utils::{self, ChatResult};
 use async_std::io;
 use async_std::net;
 
-async fn send_commands() -> ChatResult<()> {
+async fn send_commands(mut to_server: net::TcpStream) -> ChatResult<()> {
     
     println!("Commands:\n\
               join GROUP\n\
@@ -16,13 +16,13 @@ async fn send_commands() -> ChatResult<()> {
               to close the connection.");
     
     let mut command_lines = 
-        io::BufReader::new(io::stdin()).lines;
+        io::BufReader::new(io::stdin()).lines();
 
     while let Some(commad_result) = command_lines.next().await {
         let command = commad_result?;
         // see github repo for definition of `parse_command``
         let request = match parse_command(&command) {
-            Some(request) => result,
+            Some(request) => request,
             None => continue,            
         };
 
