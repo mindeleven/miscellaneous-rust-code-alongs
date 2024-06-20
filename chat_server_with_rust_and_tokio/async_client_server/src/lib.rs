@@ -26,6 +26,7 @@ pub enum FromClient {
 }
 
 // FromServer represnts what the server can send back
+// -> messages posted to some group and error messages
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 // the serde derives allow to convert messages to JSON and deserialize the received messages
 pub enum FromServer {
